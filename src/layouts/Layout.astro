@@ -1,0 +1,72 @@
+---
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Curated list of free AI models and tiers" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+		<style is:global>
+			:root {
+				--bg-color: #ffffff;
+				--text-color: #000000;
+				--link-color: #0000ee;
+			}
+			@media (prefers-color-scheme: dark) {
+				:root {
+					--bg-color: #0d1117;
+					--text-color: #c9d1d9;
+					--link-color: #58a6ff;
+				}
+			}
+			html {
+				font-family: 'JetBrains Mono', monospace;
+				background: var(--bg-color);
+				color: var(--text-color);
+				font-size: 14px;
+			}
+			body {
+				margin: 0;
+				padding: 2rem;
+				max-width: 900px;
+				margin: 0 auto;
+			}
+			a {
+				color: var(--link-color);
+				text-decoration: none;
+			}
+			a:hover {
+				text-decoration: underline;
+			}
+			h1 {
+				font-size: 1.5rem;
+				font-weight: bold;
+				margin-bottom: 2rem;
+				border-bottom: 1px solid var(--text-color);
+				padding-bottom: 0.5rem;
+			}
+			.dashed-box {
+				border: 1px dashed #444;
+				border-radius: 8px;
+				padding: 1rem;
+				margin-bottom: 1rem;
+				position: relative;
+			}
+		</style>
+	</head>
+	<body>
+		<slot />
+	</body>
+</html>

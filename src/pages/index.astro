@@ -1,0 +1,384 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { marked } from 'marked';
+
+const models = await getCollection('models');
+
+// Find the featured best model
+const bestModel = models.find(m => m.data.category === 'Featured');
+
+// Group models by category (excluding Featured)
+const groupedModels = models.reduce((acc, model) => {
+	const category = model.data.category || 'Other';
+	if (category === 'Featured') return acc; // Skip featured model in normal lists
+	if (!acc[category]) acc[category] = [];
+	acc[category].push(model);
+	return acc;
+}, {});
+
+// Sort categories (custom order)
+const categoryOrder = [
+	'Antigravity',
+	'Gemini CLI',
+	'OpenRouter',
+	'Copilot',
+	'Kilo Code',
+	'OpenCode',
+	'Qwen CLI'
+];
+
+const sortedCategories = Object.keys(groupedModels)
+	.filter(cat => cat !== 'Other') // Explicitly remove 'Other' as requested
+	.sort((a, b) => {
+		const indexA = categoryOrder.indexOf(a);
+		const indexB = categoryOrder.indexOf(b);
+		if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+		if (indexA !== -1) return -1;
+		if (indexB !== -1) return 1;
+		return a.localeCompare(b);
+	});
+---
+
+<Layout title="Free AI Access Tracker">
+	<header>
+		<h1>Free AI Access Tracker</h1>
+		<p>
+			The current AI landscape is more dynamic than ever. You can get tons of free usage besides the main chat interfaces if you know where to look. This page attempts to curate a list of free API and CLI/agent access options to frontier artificial intelligence models.
+			<a href="/rss.xml">[RSS Feed]</a>
+		</p>
+	</header>
+
+	<section class="promo-section">
+		<div class="dashed-box promo">
+			<div class="bl">🚀 Featured Tool</div>
+			<a href="https://github.com/elusznik/open-claude-router" target="_blank" rel="noopener noreferrer"><strong>Open Claude Router</strong></a>
+			<br/>
+			<span class="d">Use any OpenAI-compatible endpoint (local/remote) in Claude Code.</span>
+		</div>
+		<div class="dashed-box promo">
+			<div class="bl">⚡ Supercharge Claude</div>
+			<a href="https://github.com/elusznik/mcp-server-code-execution-mode" target="_blank" rel="noopener noreferrer"><strong>MCP Server Code Execution Mode</strong></a>
+			<br/>
+			<span class="d">Persistent code execution & lazy discovery for your MCP servers.</span>
+		</div>
+	</section>
+
+	<div class="tn">
+		<button class="tb active" data-tab="models">Models</button>
+		<button class="tb" data-tab="updates">Updates</button>
+	</div>
+
+	<div id="tab-models" class="tc active">
+		<div class="content">
+			{sortedCategories.map((category) => (
+				<section>
+					{category === 'OpenRouter' ? (
+						<>
+							<h2># {category}</h2>
+							<div class="ld dashed-box">
+								<strong>Details and Limits:</strong> 20 requests/minute, 50 requests/day (up to 1000/day with $10 lifetime topup)
+							</div>
+							<ul>
+								{bestModel && (
+									<li class="be dashed-box">
+										<div class="bl">🏆 Best Free API Choice</div>
+										<a href={bestModel.data.link} target="_blank" rel="noopener noreferrer">
+											{bestModel.data.title}
+										</a>
+										<br/>
+										<span class="d" set:html={marked.parseInline(bestModel.data.description || '')} />
+										<br/>
+										<span class="m">Details: <span set:html={marked.parseInline(bestModel.data.free_tier_details || '')} /></span>
+										{bestModel.data.handle && (
+											<div class="hc">
+												<code class="c">
+													{bestModel.data.handle}
+												</code>
+												<span class="ch">Click to copy</span>
+											</div>
+										)}
+									</li>
+								)}
+								<details>
+									<summary>
+										<span class="summary-text">Show All OpenRouter Models</span>
+										<svg class="ai" viewBox="0 0 24 24" width="16" height="16"><path d="M7 10l5 5 5-5z" fill="currentColor"/></svg>
+									</summary>
+									<div class="collapsible-list">
+										{groupedModels[category].map((model) => (
+											<li class="dashed-box">
+												<a href={model.data.link} target="_blank" rel="noopener noreferrer">
+													{model.data.title}
+												</a>
+												<br/>
+												<span class="d" set:html={marked.parseInline(model.data.description || '')} />
+												<br/>
+												<span class="m">Details: <span set:html={marked.parseInline(model.data.free_tier_details || '')} /></span>
+												{model.data.handle && (
+													<div class="hc">
+														<code class="c">
+															{model.data.handle}
+														</code>
+														<span class="ch">Click to copy</span>
+													</div>
+												)}
+											</li>
+										))}
+									</div>
+								</details>
+							</ul>
+						</>
+					) : (
+						<>
+							<h2># {category}</h2>
+							{groupedModels[category].length > 0 && (
+								<div class="ld dashed-box">
+									<strong>Details and Limits:</strong> <span set:html={marked.parseInline(groupedModels[category][0].data.free_tier_details || '')} />
+								</div>
+							)}
+							<ul>
+								{groupedModels[category].map((model) => {
+									const isBest = ['Google Antigravity', 'Google Gemini CLI'].includes(model.data.title);
+									const descriptionHtml = marked.parseInline(model.data.description || '');
+									return (
+										<li class={`dashed-box ${isBest ? "be" : ""}`}>
+											{isBest && <div class="bl">🏆 Absolute Best Free Option</div>}
+											<a href={model.data.link} target="_blank" rel="noopener noreferrer">
+												{model.data.title}
+											</a>
+											<br/>
+											<span class="d" set:html={descriptionHtml} />
+											{model.data.handle && (
+												<div class="hc">
+													<code class="c">
+														{model.data.handle}
+													</code>
+													<span class="ch">Click to copy</span>
+												</div>
+											)}
+										</li>
+									);
+								})}
+							</ul>
+						</>
+					)}
+				</section>
+			))}
+		</div>
+	</div>
+
+	<div id="tab-updates" class="tc" style="display:none">
+		<section class="us">
+			<h2>Latest Updates</h2>
+			<ul>
+				{(await getCollection('updates')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).map((update) => (
+					<li class="dashed-box">
+						<a href={`/updates/${update.slug}/`}>{update.data.title}</a>
+						<span class="date">{update.data.date.toISOString().split('T')[0]}</span>
+					</li>
+				))}
+			</ul>
+		</section>
+	</div>
+
+</Layout>
+
+<style is:global>
+	header {
+		margin-bottom: 2rem;
+	}
+	section {
+		margin-bottom: 2rem;
+	}
+	h2 {
+		font-size: 1.2rem;
+		font-weight: bold;
+		margin-bottom: 1rem;
+		text-transform: uppercase;
+	}
+	ul {
+		list-style: none;
+		padding-left: 0;
+	}
+	li {
+		margin-bottom: 1.5rem;
+		list-style: none;
+	}
+	.d {
+		display: inline-block;
+		margin-top: 0.25rem;
+		opacity: 0.9;
+	}
+	.m {
+		display: inline-block;
+		margin-top: 0.25rem;
+		font-size: 0.9em;
+		opacity: 0.7;
+	}
+	.hc {
+		margin-top: 0.5rem;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	.c {
+		background: #eee;
+		color: #333;
+		padding: 0.2rem 0.4rem;
+		border: 1px solid #ccc;
+		border-radius: 3px;
+		cursor: pointer;
+		font-size: 0.9em;
+		user-select: all;
+		transition: border-color 0.2s;
+	}
+	@media (prefers-color-scheme: dark) {
+		.c {
+			background: #222;
+			color: #ddd;
+			border-color: #444;
+		}
+	}
+	.c:hover {
+		border-color: #888;
+	}
+	.ch {
+		font-size: 0.8em;
+		opacity: 0.5;
+	}
+	details {
+		margin-top: 1rem;
+		border-top: 1px dashed #444;
+		padding-top: 0.5rem;
+	}
+	details summary {
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		color: #888;
+		font-size: 0.9em;
+		list-style: none; /* Hide default marker */
+	}
+	details summary::-webkit-details-marker {
+		display: none;
+	}
+	details summary:hover {
+		color: #fff;
+	}
+	.ai {
+		transition: transform 0.2s;
+	}
+	details[open] .ai {
+		transform: rotate(180deg);
+	}
+	.be {
+		background: rgba(255, 255, 255, 0.05);
+	}
+	.entry-title {
+		font-weight: bold;
+		color: #fff;
+	}
+	.bl {
+		font-weight: bold;
+		color: #ffd700;
+		margin-bottom: 0.5rem;
+		text-transform: uppercase;
+		font-size: 0.8em;
+		letter-spacing: 1px;
+	}
+	.ld {
+		font-size: 0.9em;
+		color: #888;
+		margin-bottom: 1rem;
+		background: rgba(255, 255, 255, 0.05);
+	}
+	.us {
+		margin-top: 3rem;
+	}
+	.us .date {
+		font-size: 0.8em;
+		color: #888;
+		font-weight: normal;
+	}
+	.promo-section {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1rem;
+		margin-bottom: 2rem;
+	}
+	@media (max-width: 600px) {
+		.promo-section {
+			grid-template-columns: 1fr;
+		}
+	}
+	.promo {
+		border-color: #ffd700; /* Gold border for promotion */
+		background: rgba(255, 215, 0, 0.05);
+		margin-bottom: 0; /* Grid handles gap */
+	}
+	.promo .bl {
+		color: #ffd700;
+	}
+	.tn {
+		display: flex;
+		gap: 1rem;
+		margin-bottom: 2rem;
+		border-bottom: 1px solid #333;
+	}
+	.tb {
+		background: none;
+		border: none;
+		color: #888;
+		font-size: 1.1rem;
+		font-weight: bold;
+		padding: 0.5rem 1rem;
+		cursor: pointer;
+		border-bottom: 2px solid transparent;
+		margin-bottom: -1px;
+		font-family: inherit;
+	}
+	.tb.active {
+		color: var(--text-color);
+		border-bottom-color: var(--text-color);
+	}
+	.tb:hover {
+		color: var(--text-color);
+	}
+</style>
+
+<script>
+	document.addEventListener('click', (e) => {
+		// Handle Copy
+		const container = e.target.closest('.hc');
+		if (container) {
+			const codeElement = container.querySelector('.c');
+			if (codeElement) {
+				navigator.clipboard.writeText(codeElement.textContent.trim());
+				codeElement.style.borderColor = '#0f0';
+				setTimeout(() => codeElement.style.borderColor = '', 1000);
+			}
+		}
+
+		// Handle Tabs
+		if (e.target.classList.contains('tb')) {
+			const tabId = e.target.dataset.tab;
+			
+			// Update buttons
+			document.querySelectorAll('.tb').forEach(btn => btn.classList.remove('active'));
+			e.target.classList.add('active');
+
+			// Update content
+			document.querySelectorAll('.tc').forEach(content => {
+				content.style.display = 'none';
+				content.classList.remove('active');
+			});
+			const activeContent = document.getElementById(`tab-${tabId}`);
+			if (activeContent) {
+				activeContent.style.display = 'block';
+				activeContent.classList.add('active');
+			}
+		}
+	});
+</script>

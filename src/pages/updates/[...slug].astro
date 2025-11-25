@@ -1,0 +1,61 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const updates = await getCollection('updates');
+  return updates.map(entry => ({
+    params: { slug: entry.slug }, props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+---
+
+<Layout title={`${entry.data.title} - Free AI Models Tracker`}>
+  <article class="dashed-box">
+    <a href="/" class="back-link">← Back</a>
+    <h1>{entry.data.title}</h1>
+    <p class="date">{entry.data.date.toISOString().split('T')[0]}</p>
+    <div class="content">
+      <Content />
+    </div>
+  </article>
+</Layout>
+
+<style>
+  article {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .back-link {
+    display: inline-block;
+    margin-bottom: 1rem;
+    color: #888;
+    text-decoration: none;
+  }
+  .back-link:hover {
+    color: var(--text-color);
+    text-decoration: underline;
+  }
+  .date {
+    color: #888;
+    margin-bottom: 2rem;
+  }
+  .content {
+    line-height: 1.6;
+  }
+  /* Add some basic markdown styling */
+  .content :global(h2) {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+  .content :global(p) {
+    margin-bottom: 1rem;
+  }
+  .content :global(ul) {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+</style>
