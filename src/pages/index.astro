@@ -4,6 +4,7 @@ import { getCollection } from 'astro:content';
 import { marked } from 'marked';
 
 const models = await getCollection('models');
+const updates = await getCollection('updates');
 
 // Find the featured best model
 const bestModel = models.find(m => m.data.category === 'Featured');
@@ -172,7 +173,7 @@ const sortedCategories = Object.keys(groupedModels)
 		<section class="us">
 			<h2>Latest Updates</h2>
 			<ul>
-				{(await getCollection('updates')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).map((update) => (
+				{updates.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).map((update) => (
 					<li class="dashed-box">
 						<a href={`/updates/${update.slug}/`}>{update.data.title}</a>
 						<span class="date">{update.data.date.toISOString().split('T')[0]}</span>
