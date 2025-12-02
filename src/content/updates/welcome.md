@@ -7,6 +7,7 @@ description: "We have added a new updates section to keep you informed about the
 We are excited to announce the addition of an updates section to the Free AI Models Tracker!
 
 Here, we will post about:
+
 - New models added to the tracker
 - Updates to existing models
 - Changes to the website
